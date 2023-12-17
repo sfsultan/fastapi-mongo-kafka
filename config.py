@@ -27,6 +27,6 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = os.getenv('JWT_SECRET_KEY', "main_secret")   # should be kept secret
     JWT_REFRESH_SECRET_KEY: str = os.getenv('JWT_REFRESH_SECRET_KEY', "refresh_secret")    # should be kept secret
 
-    KAFKA_SERVERS: str = os.getenv("KAFKA_SERVERS", "192.168.1.12:9092")
+    KAFKA_SERVERS: str = os.getenv("KAFKA_SERVERS", "192.168.1.12:9093")
 
 settings = Settings()
