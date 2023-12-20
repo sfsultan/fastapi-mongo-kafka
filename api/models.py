@@ -62,8 +62,8 @@ class UserResponseModel(BaseModel):
     )
 
 class LoginModel(BaseModel):
-    password: str = Field(..., min_length=5, max_length=20, description="user password")
     email: EmailStr = Field(...)
+    password: str = Field(..., min_length=5, max_length=20, description="user password")
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -144,3 +144,65 @@ class UserOut(BaseModel):
 
 class SystemUser(UserOut):
     password: str
+
+
+class KafkaTopic(BaseModel):
+    """
+    Container for a single user record.
+    """
+
+    name: str = Field(...)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "name": "Topic Name",
+            }
+        },
+    )
+
+
+class SubscriptionModel(BaseModel):
+    """
+    Container for a single user topic subscription.
+    """
+
+    topics: List[str] = Field(...)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "topics": ["Topic1","Topic2"]
+            }
+        },
+    )
+
+
+class SubscriptionResponseModel(BaseModel):
+    """
+    Container for a single response subscription.
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    topic: str = Field(...)
+    email: EmailStr = Field(...)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "name": "Topic1",
+                "email": "jdoe@example.com",
+            }
+        },
+    )
+
+class SubscriptionCollection(BaseModel):
+    """
+    A container holding a list of `SubscriptionResponseModel` instances.
+    This exists because providing a top-level array in a JSON response can be a [vulnerability](https://haacked.com/archive/2009/06/25/json-hijacking.aspx/)
+    """
+    subscriptions: List[SubscriptionResponseModel]
+

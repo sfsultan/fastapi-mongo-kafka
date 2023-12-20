@@ -2,12 +2,10 @@ from typing import Annotated
 import motor.motor_asyncio
 import logging
 from functools import cache
-
 from rich.console import Console
 from rich.logging import RichHandler
-from fastapi import Header, HTTPException   
+from fastapi import Header, HTTPException, FastAPI, Body, HTTPException, status, WebSocket, WebSocketDisconnect
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Body, HTTPException, status
 from passlib.context import CryptContext
 import os
 from datetime import datetime, timedelta
@@ -25,6 +23,7 @@ async def init_mongo(db_name: str = None, db_url: str = None, collection: str = 
     mongo_database = mongo_client[settings.DB_NAME]
     mongo_collections = {
         "users": mongo_database.get_collection("users"),
+        "subscriptions": mongo_database.get_collection("subscriptions"),
         "dashboards": mongo_database.get_collection("dashboards"),
         "kafka": mongo_database.get_collection("kafka"),
         "widgets": mongo_database.get_collection("widgets"),
@@ -60,3 +59,27 @@ app = FastAPI(
     summary=settings.SUMMARY,
     lifespan=startup
 )
+
+
+
+
+class ConnectionManager:
+    def __init__(self):
+        # self.active_connections: list[WebSocket] = []
+        self.websocket: WebSocket
+
+    async def connect(self, websocket: WebSocket):
+        self.websocket = websocket
+        await self.websocket.accept()
+
+    def disconnect(self):
+        self.websocket.close()
+
+    async def send_json(self, json_obj: object):
+        await self.websocket.send_json(json_obj)
+
+    # async def broadcast(self, message: str):
+    #     for connection in self.active_connections:
+    #         await connection.send_text(message)
+
+ws_manager = ConnectionManager()

@@ -52,6 +52,7 @@ async def get_current_user(token: str = Depends(reuseable_oauth)) -> SystemUser:
             token, settings.JWT_SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
         token_data = TokenPayload(**payload)
+        print("token_data >> ", token_data)
         
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
             raise HTTPException(
@@ -66,7 +67,6 @@ async def get_current_user(token: str = Depends(reuseable_oauth)) -> SystemUser:
             headers={"WWW-Authenticate": "Bearer"},
         )
         
-    print("token_data", token_data)
     user: Union[dict[str, Any], None] = await app.state.mongo_collection['users'].find_one(
         {"email": token_data.sub}
     )
